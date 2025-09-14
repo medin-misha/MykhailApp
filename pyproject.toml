@@ -10,5 +10,6 @@ dependencies = [
     "fastapi[uvicorn]>=0.116.1",
     "faststream>=0.5.48",
     "pydantic>=2.11.9",
+    "pydantic-settings>=2.10.1",
     "sqlalchemy>=2.0.43",
 ]
