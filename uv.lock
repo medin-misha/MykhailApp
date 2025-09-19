@@ -239,7 +239,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "alembic", specifier = ">=1.16.5" },
+    { name = "alembic", extras = ["postgres"], specifier = ">=1.16.5" },
     { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "fastapi", extras = ["uvicorn"], specifier = ">=0.116.1" },
     { name = "faststream", specifier = ">=0.5.48" },

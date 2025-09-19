@@ -52,7 +52,12 @@ app/
 ---
 
 ## Установка и запуск (локально)
-
+в app/ создай файл .env со следующим содержанием:
+```.env
+rabbit_url = "amqps://login:password@dog.lmq.cloudamqp.com/khllqnbg"
+postgres_url = "postgresql+asyncpg://login:password@mykhail-postgres-medinskijmisa228-e66a.k.aivencloud.com:23233/defaultdb"
+# важно: строка postgres_url должна быть ИМЕЕНО формата postgresql+asyncpg
+```
 ---
 
 ## Архитектурные идеи
