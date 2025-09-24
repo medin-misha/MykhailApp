@@ -33,11 +33,11 @@ app/
 ├── api/                  # API (HTTP и AMQP)
 │   └── v1/               # версия API
 │       └── users/        # модуль работы с пользователями
-│           ├── views_http.py   # HTTP-эндпоинты (FastAPI)
-│           ├── views_amqp.py   # AMQP-консьюмеры (FastStream)
-│           ├── schemas.py      # Pydantic-схемы
+│           ├── views.py   # HTTP-эндпоинты (FastAPI)
+│           ├── amqp_publishers.py  #AMQP-продюсерры (FastStream)
+│           ├── amqp_consumers.py   # AMQP-консьюмеры (FastStream)
 │           └── utils.py        # вспомогательные функции
-├── contracts/            # контракты/модели сообщений (AMQP)
+├── contracts/            # контракты/модели сообщений (AMQP\HTTP)
 ├── core/                 # базовые модули приложения
 │   ├── utils.py          # общие утилиты
 │   ├── database.py       # подключение к БД и фабрика сессий
