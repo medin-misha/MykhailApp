@@ -11,7 +11,7 @@ class User(Base):
     username: Mapped[Optional[str]] = mapped_column(String(64), unique=False, nullable=True)
     chat_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True, nullable=False)
 
-    birthday_date: Mapped[date] = mapped_column(Date, nullable=False)
+    birthday_date: Mapped[date] = mapped_column(Date, nullable=True)
 
     registered_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

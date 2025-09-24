@@ -24,3 +24,6 @@ class DataBaseHelper:
         async with self.session_maker() as sess:
             yield sess
             await sess.close()
+
+
+database = DataBaseHelper(url=settings.postgres_url)
