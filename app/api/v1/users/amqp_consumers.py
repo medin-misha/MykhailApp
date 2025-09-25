@@ -1,12 +1,10 @@
 from faststream.rabbit.broker import RabbitBroker
 from pydantic import ValidationError
-from sqlalchemy.ext.asyncio import AsyncSession
-import json
 from config import settings
 from core.database import database
 from contracts.user import ReturnUser, CreateUser
 from services.user import UserCrud
-
+from .utils import str_in_dict_or_error_log
 
 broker = RabbitBroker(url=settings.rabbit_url)
 
@@ -22,13 +20,8 @@ broker = RabbitBroker(url=settings.rabbit_url)
 )
 async def order_queue_handler(data: str): # data: CreateUser
     try:
-        # Парсим JSON
-        payload = json.loads(data)
-        # Валидируем через Pydantic
+        payload = str_in_dict_or_error_log(data=data)
         user = CreateUser(**payload)
-    except json.JSONDecodeError:
-        print("Ошибка в order_queue_handler: пришли некорректные данные, не JSON")
-        return
     except ValidationError as e:
         print(f"Ошибка валидации данных: {e}")
         return
