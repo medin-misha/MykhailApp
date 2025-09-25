@@ -1,6 +1,7 @@
 from datetime import datetime, date
 import json
 
+
 def str_in_dict_or_error_log(data: str) -> dict | None:
     try:
         payload = json.loads(data)
@@ -8,6 +9,7 @@ def str_in_dict_or_error_log(data: str) -> dict | None:
         print(f"Ошибка в пришли некорректные данные, не JSON: {data}")
         return None
     return payload
+
 
 def str_in_date(date_str: str) -> date:
     try:

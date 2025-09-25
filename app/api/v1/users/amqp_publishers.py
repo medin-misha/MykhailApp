@@ -26,6 +26,7 @@ async def auth_user_handler_publisher(chat_id: int, username: str) -> dict:
     )
     return {"sended": "True"}
 
+
 @router.patch(
     "/auth/birthday",
     summary="(Служебный) Установка даты рождения пользователя",
@@ -40,8 +41,5 @@ async def auth_user_handler_publisher(chat_id: int, username: str) -> dict:
 async def set_user_birthday_publisher(birthday: BirthdayModel) -> dict:
     dict_data = {"chat_id": birthday.chat_id, "birthday": birthday.birthday}
     string = json.dumps(dict_data)
-    await router.broker.publish(
-        message=string,
-        queue="user_birthday"
-    )
+    await router.broker.publish(message=string, queue="user_birthday")
     return {"sended": "True"}

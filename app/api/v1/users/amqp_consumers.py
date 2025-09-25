@@ -8,6 +8,7 @@ from .utils import str_in_dict_or_error_log, str_in_date
 
 broker = RabbitBroker(url=settings.rabbit_url)
 
+
 @broker.subscriber(
     "auth_user",
     description=(
@@ -18,7 +19,7 @@ broker = RabbitBroker(url=settings.rabbit_url)
         "с помощью `UserCrud.get_or_create`."
     ),
 )
-async def order_queue_handler(data: str): # data: CreateUser
+async def order_queue_handler(data: str):  # data: CreateUser
     try:
         payload = str_in_dict_or_error_log(data=data)
         user = CreateUser(**payload)
@@ -39,7 +40,7 @@ async def order_queue_handler(data: str): # data: CreateUser
         "в базе данных с помощью метода `UserCrud.update`."
     ),
 )
-async def set_user_birthday_handler(data: str): # data: BrithdayModel
+async def set_user_birthday_handler(data: str):  # data: BrithdayModel
     try:
         payload = str_in_dict_or_error_log(data=data)
         birthday_data = BirthdayModel(**payload)
@@ -51,6 +52,5 @@ async def set_user_birthday_handler(data: str): # data: BrithdayModel
             chat_id=birthday_data.chat_id,
             field="birthday_date",
             session=session,
-            new_value=str_in_date(birthday_data.birthday)
+            new_value=str_in_date(birthday_data.birthday),
         )
-
