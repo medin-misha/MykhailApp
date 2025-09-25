@@ -1,4 +1,5 @@
 from faststream.rabbit.fastapi import RabbitRouter
+import json
 from config import settings
 from contracts.user import BirthdayModel
 
@@ -17,15 +18,15 @@ router = RabbitRouter(url=settings.rabbit_url)
     response_description="Подтверждение успешной отправки сообщения в очередь.",
 )
 async def auth_user_handler_publisher(chat_id: int, username: str) -> dict:
-    dict_data: dict = {"chat_id": {chat_id}, "username": "{username}"}
-    string = f'{dict_data}'
+    dict_data: dict = {"chat_id": chat_id, "username": username}
+    string = json.dumps(dict_data)
     await router.broker.publish(
         message=string,
         queue="auth_user",
     )
     return {"sended": "True"}
 
-@router.post(
+@router.patch(
     "/auth/birthday",
     summary="(Служебный) Установка даты рождения пользователя",
     description=(
@@ -38,7 +39,7 @@ async def auth_user_handler_publisher(chat_id: int, username: str) -> dict:
 )
 async def set_user_birthday_publisher(birthday: BirthdayModel) -> dict:
     dict_data = {"chat_id": birthday.chat_id, "birthday": birthday.birthday}
-    string = f"{dict_data}"
+    string = json.dumps(dict_data)
     await router.broker.publish(
         message=string,
         queue="user_birthday"
