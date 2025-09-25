@@ -1,4 +1,4 @@
-from pydantic import BaseModel, PositiveInt
+from pydantic import BaseModel, PositiveInt, field_validator
 from datetime import datetime, date
 
 class BaseUser(BaseModel):
@@ -16,3 +16,15 @@ class ReturnUser(BaseUser):
 
 class ChatId(BaseModel):
     chat_id: PositiveInt
+
+class BirthdayModel(BaseModel):
+    chat_id: int
+    birthday: str
+
+    @field_validator("birthday")
+    def validate_birthday(cls, value):
+        try:
+            datetime.strptime(value, "%d/%m/%Y")
+        except ValueError:
+            raise ValueError("Дата должна быть в формате dd/mm/YYYY")
+        return value
