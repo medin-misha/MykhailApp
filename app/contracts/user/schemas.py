@@ -9,8 +9,8 @@ class CreateUser(BaseUser):
     pass
 
 class ReturnUser(BaseUser):
-    id: str
-    last_login_at: datetime
+    id: int
+    last_login_at: datetime | None
     registered_at: datetime
     birthday_date: date
 
