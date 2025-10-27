@@ -16,10 +16,10 @@ class UserSubscription(Base):
     """
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+        BigInteger, ForeignKey("User.id", ondelete="CASCADE"), index=True, nullable=False
     )
     subscription_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("subscriptions.id", ondelete="SET NULL"), nullable=False
+        Integer, ForeignKey("Subscription.id", ondelete="SET NULL"), nullable=False
     )
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
