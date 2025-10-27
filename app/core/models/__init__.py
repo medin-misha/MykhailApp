@@ -1,4 +1,4 @@
-__all__ = "User", "Subscription", "UserSubscription", "Admin", "Service", "APIKey", "Base"
+__all__ = "User", "Subscription", "UserSubscription", "Admin", "Service", "APIKey", "Payment", "Base"
 
 from .base import Base
 from .user import User
@@ -7,3 +7,4 @@ from .user_subscription import UserSubscription
 from .admin import Admin
 from .service import Service
 from .api_key import APIKey
+from .payment import Payment
