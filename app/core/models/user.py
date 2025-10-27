@@ -1,24 +1,37 @@
-from sqlalchemy.orm import mapped_column, Mapped
-from sqlalchemy import Date, BigInteger, DateTime, String, func
-from typing import Optional
+from __future__ import annotations
+
 from datetime import date, datetime
+from typing import Optional
+
+from sqlalchemy import BigInteger, Date, DateTime, String, Boolean, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from .base import Base
 
+
 class User(Base):
-
+    """
+    Пользователь, ключевая сущность для аутентификации по Telegram chat_id
+    """
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
-
-    username: Mapped[Optional[str]] = mapped_column(String(64), unique=False, nullable=True)
     chat_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True, nullable=False)
-
-    birthday_date: Mapped[date] = mapped_column(Date, nullable=True)
-
+    username: Mapped[Optional[str]] = mapped_column(String(64),  nullable=True)
+    phone: Mapped[Optional[str]] = mapped_column(String(15), nullable=True)
+    email: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    birthday_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     registered_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
-    last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+
+    # отношения
+    subscriptions: Mapped[list["UserSubscription"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", lazy="selectin"
+    )
+    payments: Mapped[list["Payment"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", lazy="selectin"
+    )
 
     def __repr__(self) -> str:
-        return f"<User id={self.id} username={self.username} chat_id={self.chat_id}>"
+        return f"<User chat_id={self.chat_id} username={self.username!r}>"
