@@ -1,3 +1,3 @@
-__all__ = "CreateUser", "ReturnUser", "ChatId"
+__all__ = "UserCreate", "UserUpdate", "UserReturn"
 
-from .schemas import CreateUser, ReturnUser, ChatId, BirthdayModel
+from .schemas import UserCreate, UserReturn, UserUpdate

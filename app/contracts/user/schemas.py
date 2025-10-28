@@ -1,30 +1,51 @@
-from pydantic import BaseModel, PositiveInt, field_validator
-from datetime import datetime, date
+from datetime import date, datetime
+from typing import Optional, List
+from pydantic import BaseModel, EmailStr, Field
 
-class BaseUser(BaseModel):
-    chat_id: PositiveInt
-    username: str
 
-class CreateUser(BaseUser):
+# ---------- Базовая модель ----------
+class UserBase(BaseModel):
+    chat_id: int = Field(..., description="Telegram chat_id пользователя")
+    username: Optional[str] = Field(None, max_length=64, description="Имя пользователя в Telegram")
+    phone: Optional[str] = Field(None, max_length=15, description="Номер телефона пользователя")
+    email: Optional[EmailStr] = Field(None, description="Электронная почта пользователя")
+    birthday_date: Optional[date] = Field(None, description="Дата рождения пользователя")
+    is_active: bool = Field(default=True, description="Активен ли пользователь")
+
+
+# ---------- Модель создания ----------
+class UserCreate(UserBase):
+    """
+    Используется при создании пользователя (например, при первом логине через Telegram)
+    """
     pass
 
-class ReturnUser(BaseUser):
+
+# ---------- Модель обновления ----------
+class UserUpdate(BaseModel):
+    """
+    Используется для обновления данных пользователя
+    """
+    username: Optional[str] = Field(None, max_length=64)
+    phone: Optional[str] = Field(None, max_length=15)
+    email: Optional[EmailStr] = None
+    birthday_date: Optional[date] = None
+    is_active: Optional[bool] = None
+    last_login_at: Optional[datetime] = None
+
+
+# ---------- Модель возврата ----------
+class UserReturn(UserBase):
+    """
+    Используется для возврата данных пользователю (в ответах API)
+    """
     id: int
-    last_login_at: datetime | None
     registered_at: datetime
-    birthday_date: date
+    last_login_at: Optional[datetime] = None
 
-class ChatId(BaseModel):
-    chat_id: PositiveInt
+    # если нужно показать связанные сущности (например, списки платежей и подписок)
+    subscriptions: Optional[List[int]] = Field(default_factory=list, description="ID подписок пользователя")
+    payments: Optional[List[int]] = Field(default_factory=list, description="ID платежей пользователя")
 
-class BirthdayModel(BaseModel):
-    chat_id: int
-    birthday: str
-
-    @field_validator("birthday")
-    def validate_birthday(cls, value):
-        try:
-            datetime.strptime(value, "%d/%m/%Y")
-        except ValueError:
-            raise ValueError("Дата должна быть в формате dd/mm/YYYY")
-        return value
+    class Config:
+        from_attributes = True  # (Pydantic v2) аналог orm_mode=True

@@ -1,8 +1,8 @@
 __all__ = "main_router", "user_broker"
 
 from fastapi import APIRouter
-from .v1.users import user_router, user_broker
+from .v1.users.views import router as user_router
 
-main_router = APIRouter()
+main_router = APIRouter(prefix="/api/v1")
 
 main_router.include_router(user_router)

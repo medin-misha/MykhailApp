@@ -1,16 +1,16 @@
 from fastapi import FastAPI
 import uvicorn
 from contextlib import asynccontextmanager
-from api import main_router, user_broker
+from api import main_router\
 
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> None:
-    await user_broker.start()
-    yield
-    await user_broker.close()
+# @asynccontextmanager
+# async def lifespan(app: FastAPI) -> None:
+#     await user_broker.start()
+#     yield
+#     await user_broker.close()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 app.include_router(main_router)
 
 
