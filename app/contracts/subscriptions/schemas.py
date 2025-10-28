@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, condecimal, conint
@@ -60,3 +60,40 @@ class SubscriptionReturn(SubscriptionBase):
     model_config = {
         "from_attributes": True  # позволяет создавать схему из ORM-объекта
     }
+
+
+class SubscribeUserBase(BaseModel):
+    """
+    Базовая модель подписки пользователя.
+    Используется как основа для создания и возврата данных.
+    """
+
+    subscription_id: int = Field(
+        ..., description="Идентификатор подписки (Subscription.id)"
+    )
+    user_id: int = Field(..., description="Идентификатор пользователя (User.id)")
+    source: str = Field(
+        ..., description="Источник подписки, например 'tribute', 'telegram_stars'"
+    )
+
+
+class SubscribeUserCreate(SubscribeUserBase):
+    """
+    Входные данные при создании подписки пользователя.
+    Используется в HTTP-запросе или AMQP-событии.
+    """
+
+    pass
+
+
+class SubscribeUserReturn(SubscribeUserBase):
+    """
+    Возврат клиенту (HTTP-ответ, AMQP-payload).
+    """
+
+    id: int = Field(
+        ..., description="ID записи подписки пользователя (UserSubscription.id)"
+    )
+    started_at: datetime = Field(..., description="Дата начала действия подписки")
+    expires_at: datetime = Field(..., description="Дата окончания действия подписки")
+    active: bool = Field(..., description="Флаг активности подписки")

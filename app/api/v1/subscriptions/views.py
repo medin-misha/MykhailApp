@@ -114,3 +114,7 @@ async def delete_subscription_view(
     Удобно при тестировании миграций и CRUD-операций.
     """
     return await CRUD.delete(id=id, session=session, model=Subscription)
+
+
+@router.post("/subscribe")
+async def subscribe_user_view()
