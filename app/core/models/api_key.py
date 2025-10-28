@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 
@@ -27,6 +27,7 @@ class APIKey(Base):
         nullable=False,
         server_default=func.now()
     )
-
+    # отношения
+    service: Mapped["Service"] = relationship(back_populates="api_keys")
     def __repr__(self) -> str:
         return f"<APIKey id={self.id} service_id={self.service_id} active={self.is_active}>"
