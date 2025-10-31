@@ -116,5 +116,3 @@ async def delete_subscription_view(
     return await CRUD.delete(id=id, session=session, model=Subscription)
 
 
-@router.post("/subscribe")
-async def subscribe_user_view()
