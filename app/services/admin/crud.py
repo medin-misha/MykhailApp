@@ -1,12 +1,4 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, status
-from sqlalchemy import select
-from contracts.admin import AdminCreateForm, AdminReturn
-from core.models import Admin
-from core.security import hash_password
-
-
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi import HTTPException
 from contracts.admin import AdminCreateForm, AdminReturn

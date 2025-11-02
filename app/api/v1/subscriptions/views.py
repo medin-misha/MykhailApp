@@ -4,11 +4,15 @@ from fastapi import APIRouter, Depends, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services import CRUD
+from services.subscription.subscribe_user import subscribe
 from core.models import Subscription
 from contracts.subscriptions import (
     SubscriptionCreate,
     SubscriptionReturn,
     SubscriptionUpdate,
+    SubscribeUserReturn,
+    SubscribeUserCreateForm
+
 )
 from core.database import database
 
@@ -116,3 +120,9 @@ async def delete_subscription_view(
     return await CRUD.delete(id=id, session=session, model=Subscription)
 
 
+@router.post("/subscribe")
+async def subscribe_user_view(
+        data: SubscribeUserCreateForm,
+        session: SessionDep
+) -> SubscribeUserReturn:
+    return await subscribe(data=data, session=session)

@@ -1,4 +1,4 @@
-__all__ = "SubscriptionReturn", "SubscriptionUpdate", "SubscriptionCreate"
+__all__ = "SubscriptionReturn", "SubscriptionUpdate", "SubscriptionCreate", "SubscribeUserCreate", "SubscribeUserReturn", "SubscribeUserCreateForm"
 
 
-from .schemas import SubscriptionReturn, SubscriptionUpdate, SubscriptionCreate
+from .schemas import SubscriptionReturn, SubscriptionUpdate, SubscriptionCreate, SubscribeUserCreate, SubscribeUserReturn, SubscribeUserCreateForm

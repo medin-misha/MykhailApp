@@ -62,38 +62,40 @@ class SubscriptionReturn(SubscriptionBase):
     }
 
 
+# SubscribeUserCreate, SubscribeUserReturn, SubscribeUserCreateForm
+
 class SubscribeUserBase(BaseModel):
     """
-    Базовая модель подписки пользователя.
-    Используется как основа для создания и возврата данных.
+    Базовая модель оформления подписки
     """
+    subscription_id: int = Field(..., description="Subscription.id подписки")
+    source: Optional[str] = Field(None, description="Откуда подписался человек")
 
-    subscription_id: int = Field(
-        ..., description="Идентификатор подписки (Subscription.id)"
-    )
-    user_id: int = Field(..., description="Идентификатор пользователя (User.id)")
-    source: str = Field(
-        ..., description="Источник подписки, например 'tribute', 'telegram_stars'"
-    )
-
+class SubscribeUserCreateForm(SubscribeUserBase):
+    """
+    Форма оформления подписки на пользователя
+    """
+    chat_id: int = Field(..., description="User.id пользователя")
+    subscription_id: int = Field(..., description="Subscription.id подписки")
+    source: Optional[str] = Field(None, description="Откуда подписался человек")
 
 class SubscribeUserCreate(SubscribeUserBase):
     """
-    Входные данные при создании подписки пользователя.
-    Используется в HTTP-запросе или AMQP-событии.
+    Модель оформления подписки. Идентична модели
     """
+    user_id: int = Field(..., description="User.id пользователя")
+    expires_at: Optional[datetime] = Field(None, description="Дата и время когда подписка исчезает")
+    active: Optional[bool]
 
-    pass
-
-
-class SubscribeUserReturn(SubscribeUserBase):
+class SubscribeUserReturn(BaseModel):
     """
-    Возврат клиенту (HTTP-ответ, AMQP-payload).
+    Модель возвращения оформленной подписки
     """
+    id: int = Field(..., description="Айди подписки ")
+    user_id: int = Field(..., description="User.id пользователя")
+    expires_at: Optional[datetime] = Field(None, description="Дата и время когда подписка исчезает")
+    active: Optional[bool]
 
-    id: int = Field(
-        ..., description="ID записи подписки пользователя (UserSubscription.id)"
-    )
-    started_at: datetime = Field(..., description="Дата начала действия подписки")
-    expires_at: datetime = Field(..., description="Дата окончания действия подписки")
-    active: bool = Field(..., description="Флаг активности подписки")
+    model_config = {
+        "from_attributes": True  # позволяет создавать схему из ORM-объекта
+    }
