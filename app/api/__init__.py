@@ -6,6 +6,7 @@ from .v1.subscriptions.views import router as subscription_router
 from .v1.admin.views import router as admin_router
 from .v1.services.views import router as services_router
 from .v1.api_keys.views import router as api_key_router
+from .v1.payments.views import router as payments_router
 
 main_router = APIRouter(prefix="/api/v1")
 
@@ -14,3 +15,4 @@ main_router.include_router(subscription_router)
 main_router.include_router(admin_router)
 main_router.include_router(services_router)
 main_router.include_router(api_key_router)
+main_router.include_router(payments_router)
