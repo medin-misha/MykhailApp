@@ -1,14 +1,20 @@
 from fastapi import HTTPException, status
+from mako.compat import exception_as
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select, Result
+from sqlalchemy.exc import IntegrityError, DataError, OperationalError
 from pydantic import BaseModel
 
 from typing import TypeVar, Type, Union
+import logging
+
+from .error_handlers import DBErrorHandler
 
 # универсальные дженерики
 ModelT = TypeVar("ModelT", bound=DeclarativeBase)
 SchemaT = TypeVar("SchemaT", bound=BaseModel)
+logger = logging.getLogger(__name__)
 
 
 class CRUD:
@@ -16,11 +22,34 @@ class CRUD:
     async def create(
         data: SchemaT, model: Type[ModelT], session: AsyncSession
     ) -> ModelT:
-        instance = model(**data.model_dump())
-        session.add(instance)
-        await session.commit()
-        await session.refresh(instance)
-        return instance
+        """
+        💡 Универсальное создание ORM-сущности.
+
+        Создаёт новую запись в базе данных из Pydantic-схемы.
+        Все ошибки SQLAlchemy автоматически обрабатываются DBErrorHandler.
+
+        Args:
+            data: Входная Pydantic-модель с данными.
+            model: ORM-модель (дочерний класс Base).
+            session: Асинхронная сессия SQLAlchemy.
+
+        Returns:
+            Созданный ORM-объект после refresh().
+
+        Raises:
+            HTTPException: при любой ошибке БД или некорректных данных.
+        """
+        try:
+            instance = model(**data.model_dump())
+            session.add(instance)
+            await session.commit()
+            await session.refresh(instance)
+        except HTTPException:
+            raise
+        except Exception as err:
+            DBErrorHandler.handle(err=err, model=model)
+        finally:
+            return instance
 
     @staticmethod
     async def get(
@@ -28,53 +57,141 @@ class CRUD:
         session: AsyncSession,
         id: int | None = None,
     ) -> Union[ModelT, list[ModelT]]:
-        stmt = select(model)
-        if id:
-            stmt = stmt.where(model.id == id)
+        """
+        💡 Универсальный метод чтения данных из базы.
 
-        result: Result = await session.execute(stmt)
-        data = result.scalars().all()
+        Если передан `id`, возвращает одну запись по первичному ключу.
+        Если `id` не указан — возвращает список всех записей модели.
 
-        if id:
-            if not data:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-            return data[0]
+        Args:
+            model: ORM-модель (дочерний класс Base)
+            session: асинхронная сессия SQLAlchemy
+            id: идентификатор записи (опционально)
 
-        return data
+        Returns:
+            Один объект модели или список всех объектов.
+
+        Raises:
+            HTTPException(404): если запись по id не найдена.
+            HTTPException(400/503/500): если произошла SQL-ошибка (через DBErrorHandler).
+        """
+        try:
+            stmt = select(model)
+            if id is not None:
+                stmt = stmt.where(model.id == id)
+
+            result: Result = await session.execute(stmt)
+            data = result.scalars().all()
+            if id is not None:
+                if not data:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"{model.__name__} with id={id} not found.",
+                    )
+                return data[0]
+
+            return data
+        except HTTPException:
+            raise
+        except Exception as err:
+            # Любая ошибка SQLAlchemy или инфраструктуры
+            DBErrorHandler.handle(err=err, model=model)
 
     @staticmethod
     async def patch(
-        new_data: SchemaT, model: Type[ModelT], session: AsyncSession, id: int
-    ):
-        stmt = select(model).where(model.id == id)
-        result: Result = await session.execute(stmt)
-        instance = result.scalars().first()
+        new_data: SchemaT,
+        model: Type[ModelT],
+        session: AsyncSession,
+        id: int,
+    ) -> ModelT:
+        """
+        💡 Универсальное обновление записи (частичное).
 
-        if not instance:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-        # exclude_unset говорит что можно брать только те поля которые не None
-        update_data = new_data.model_dump(exclude_unset=True)
+        Обновляет только те поля, которые переданы в Pydantic-модели `new_data`.
+        Если запись с указанным id не найдена, выбрасывает 404.
+        Все ошибки SQLAlchemy обрабатываются через DBErrorHandler.
 
-        for field, value in update_data.items():
-            setattr(instance, field, value)
+        Args:
+            new_data: Pydantic-модель с обновлёнными полями
+            model: ORM-модель
+            session: асинхронная сессия SQLAlchemy
+            id: идентификатор записи
 
-        session.add(instance)
-        await session.commit()
-        await session.refresh(instance)
+        Returns:
+            Обновлённый ORM-объект
 
-        return instance
+        Raises:
+            HTTPException(404): если запись не найдена
+            HTTPException(400/503/500): при ошибках БД
+        """
+        try:
+            stmt = select(model).where(model.id == id)
+            result: Result = await session.execute(stmt)
+            instance = result.scalars().first()
+
+            if not instance:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"{model.__name__} with id={id} not found.",
+                )
+
+            # exclude_unset → обновляем только реально переданные поля
+            update_data = new_data.model_dump(exclude_unset=True)
+
+            # Защита: не даём обновить первичный ключ
+            update_data.pop("id", None)
+
+            for field, value in update_data.items():
+                setattr(instance, field, value)
+
+            session.add(instance)
+            await session.commit()
+            await session.refresh(instance)
+
+            return instance
+        except HTTPException:
+            raise
+        except Exception as err:
+            await session.rollback()
+            DBErrorHandler.handle(err=err, model=model, action="updating")
 
     @staticmethod
     async def delete(
         model: Type[ModelT],
         session: AsyncSession,
-        id: int | None = None,
+        id: int,
     ) -> str:
-        stmt = select(model).where(model.id == id)
-        instances: Result = await session.execute(stmt)
-        instance: ModelT = instances.scalars().first()
-        if not instance:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-        await session.delete(instance)
-        await session.commit()
-        return "ok"
+        """
+        💡 Удаляет запись по ID.
+
+        Args:
+            model: ORM-модель (дочерний класс Base)
+            session: асинхронная сессия SQLAlchemy
+            id: идентификатор записи для удаления
+
+        Returns:
+            Строка `"ok"` при успешном удалении.
+
+        Raises:
+            HTTPException(404): если запись не найдена
+            HTTPException(400/503/500): при ошибках БД (через DBErrorHandler)
+        """
+        try:
+            stmt = select(model).where(model.id == id)
+            result: Result = await session.execute(stmt)
+            instance: ModelT | None = result.scalars().first()
+
+            if not instance:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"{model.__name__} with id={id} not found.",
+                )
+
+            await session.delete(instance)
+            await session.commit()
+            return "ok"
+        except HTTPException:
+            raise
+        except Exception as err:
+            await session.rollback()
+            DBErrorHandler.handle(err=err, model=model, action="deleting")

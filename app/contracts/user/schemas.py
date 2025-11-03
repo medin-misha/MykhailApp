@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr, Field
+from contracts.subscriptions import SubscribeUserReturn
 
 
 # ---------- Базовая модель ----------
@@ -44,7 +45,7 @@ class UserReturn(UserBase):
     last_login_at: Optional[datetime] = None
 
     # если нужно показать связанные сущности (например, списки платежей и подписок)
-    subscriptions: Optional[List[int]] = Field(default_factory=list, description="ID подписок пользователя")
+    subscriptions: Optional[List[SubscribeUserReturn]] = Field(default_factory=list, description="ID подписок пользователя")
     payments: Optional[List[int]] = Field(default_factory=list, description="ID платежей пользователя")
 
     class Config:
