@@ -12,7 +12,8 @@ class UserBase(BaseModel):
     email: Optional[EmailStr] = Field(None, description="Электронная почта пользователя")
     birthday_date: Optional[date] = Field(None, description="Дата рождения пользователя")
     is_active: bool = Field(default=True, description="Активен ли пользователь")
-
+    source: Optional[str] = Field(None, description="Место откуда пришел пользователь")
+    language: Optional[str] = Field(None, description="Язык на котором разговаривает пользователь")
 
 # ---------- Модель создания ----------
 class UserCreate(UserBase):
