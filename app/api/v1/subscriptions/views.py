@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services import CRUD
-from services.subscription.subscribe_user import subscribe
+from services.subscription.subscribe_user import subscribe, check_user_subscribe
 from core.models import Subscription
 from contracts.subscriptions import (
     SubscriptionCreate,
@@ -12,7 +12,6 @@ from contracts.subscriptions import (
     SubscriptionUpdate,
     SubscribeUserReturn,
     SubscribeUserCreateForm
-
 )
 from core.database import database
 
@@ -125,4 +124,18 @@ async def subscribe_user_view(
         data: SubscribeUserCreateForm,
         session: SessionDep
 ) -> SubscribeUserReturn:
+    """
+        ⚙️ **Dev-only endpoint**
+
+        Подписывает пользователя по его chat_id и id подписки
+        Удобно при тестировании миграций и CRUD-операций.
+        """
     return await subscribe(data=data, session=session)
+
+@router.get("/check/{chat_id: int}/{subscription_id: int}")
+async def check_subscriber_view(
+        chat_id: int,
+        subscription_id: int,
+        session: SessionDep
+) -> bool:
+    return await check_user_subscribe(chat_id=chat_id, subscription_id=subscription_id, session=session)
