@@ -1,3 +1,3 @@
-__all__ = "UserCreate", "UserUpdate", "UserReturn"
+__all__ = "UserCreate", "UserUpdate", "UserReturn", "UserCreateForm"
 
-from .schemas import UserCreate, UserReturn, UserUpdate
+from .schemas import UserCreate, UserReturn, UserUpdate, UserCreateForm

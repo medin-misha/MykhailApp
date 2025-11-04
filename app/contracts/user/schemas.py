@@ -1,7 +1,9 @@
 from datetime import date, datetime
-from typing import Optional, List
+from typing import Optional, List, Any
 from pydantic import BaseModel, EmailStr, Field
 from contracts.subscriptions import SubscribeUserReturn
+from contracts.services import UserServiceReturn
+from contracts.payments import PaymentReturn
 
 
 # ---------- Базовая модель ----------
@@ -19,6 +21,15 @@ class UserBase(BaseModel):
     birthday_date: Optional[date] = Field(
         None, description="Дата рождения пользователя"
     )
+
+
+# ---------- Модель формы создания ----------
+class UserCreateForm(UserBase):
+    """
+    Используется для получения дополнительных данных от юзере (для создания связных моделей)
+    """
+
+    service_id: int = Field(..., description="Сервис из которого пользователь пришел")
 
 
 # ---------- Модель создания ----------
@@ -49,14 +60,15 @@ class UserReturn(UserBase):
     """
 
     id: int
-    # если нужно показать связанные сущности (например, списки платежей и подписок)
     subscriptions: Optional[List[SubscribeUserReturn]] = Field(
         default_factory=list, description="ID подписок пользователя"
     )
-    payments: Optional[List[int]] = Field(
+    payments: Optional[List[PaymentReturn]] = Field(
         default_factory=list, description="ID платежей пользователя"
     )
-    services: Optional[list[dict]] = Field(None, description="Связи с сервисами")
+    services: Optional[list[UserServiceReturn]] = Field(
+        default_factory=list, description="Связи с сервисами"
+    )
 
     class Config:
         from_attributes = True  # (Pydantic v2) аналог orm_mode=True

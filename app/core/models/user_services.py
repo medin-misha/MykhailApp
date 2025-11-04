@@ -44,7 +44,7 @@ class UserService(Base):
     service: Mapped["Service"] = relationship(back_populates="users")
 
     def __repr__(self) -> str:
-        return f"<UserService user_id={self.user_id} sub_id={self.subscription_id} active={self.active}>"
+        return f"<UserService user_id={self.user_id} service_id={self.service_id} active={self.is_active}>"
 
     __table_args__ = (
         UniqueConstraint("user_id", "service_id", name="uq_user_service_pair"),
