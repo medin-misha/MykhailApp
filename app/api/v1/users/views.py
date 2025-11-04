@@ -4,8 +4,9 @@ from fastapi import APIRouter, Depends, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services import CRUD
-from core.models import User
-from contracts.user import UserReturn, UserCreate, UserUpdate
+from services.user.crud import create_new_user
+from core.models import User, UserService
+from contracts.user import UserReturn, UserCreateForm, UserUpdate
 from core.database import database
 
 router = APIRouter(
@@ -25,7 +26,7 @@ SessionDep = Annotated[AsyncSession, Depends(database.get_session)]
     response_model_exclude_none=True,
 )
 async def create_user_view(
-    data: UserCreate,
+    data: UserCreateForm,
     session: SessionDep,
 ) -> UserReturn:
     """
@@ -34,7 +35,7 @@ async def create_user_view(
     Создаёт пользователя в базе данных.
     Используется при разработке или для ручных тестов.
     """
-    user = await CRUD.create(data=data, model=User, session=session)
+    user = await create_new_user(form=data, session=session)
     return user
 
 
