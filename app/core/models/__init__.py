@@ -8,3 +8,4 @@ from .admin import Admin
 from .service import Service
 from .api_key import APIKey
 from .payment import Payment
+from .user_services import UserService

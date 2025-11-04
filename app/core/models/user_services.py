@@ -11,7 +11,7 @@ from sqlalchemy import (
     Boolean,
     ForeignKey,
     func,
-    CheckConstraint,
+    CheckConstraint, UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -33,10 +33,10 @@ class UserService(Base):
     service_id = mapped_column(
         Integer, ForeignKey("Service.id", ondelete="CASCADE"), nullable=False
     )
-    registered_at: Mapped[DateTime] = mapped_column(
+    registered_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=func.now()
     )
-    last_login_at: Mapped[Optional[DateTime]] = mapped_column(nullable=True)
+    last_login_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     # отношения

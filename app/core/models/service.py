@@ -26,7 +26,7 @@ class Service(Base):
     api_keys: Mapped[list["APIKey"]] = relationship(
         back_populates="service", cascade="all, delete-orphan", lazy="selectin"
     )
-    user_subscriptions: Mapped[list["UserService"]] = relationship(
+    users: Mapped[list["UserService"]] = relationship(
         back_populates="service", lazy="selectin"
     )
 
