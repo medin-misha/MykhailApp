@@ -42,6 +42,9 @@ class User(Base):
     payments: Mapped[list["Payment"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", lazy="selectin"
     )
+    services: Mapped[list["UserService"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", lazy="selectin"
+    )
 
     def __repr__(self) -> str:
         return f"<User chat_id={self.chat_id} username={self.username!r}>"

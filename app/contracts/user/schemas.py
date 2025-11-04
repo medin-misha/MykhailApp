@@ -56,6 +56,7 @@ class UserReturn(UserBase):
     payments: Optional[List[int]] = Field(
         default_factory=list, description="ID платежей пользователя"
     )
+    services: Optional[list[dict]] = Field(None, description="Связи с сервисами")
 
     class Config:
         from_attributes = True  # (Pydantic v2) аналог orm_mode=True
