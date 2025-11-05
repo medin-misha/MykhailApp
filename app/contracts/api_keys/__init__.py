@@ -1,3 +1,3 @@
-__all__ = "APIKeyCreate", "APIKeyReturn", "APIKeyUpdate"
+__all__ = "APIKeyCreate", "APIKeyReturn", "APIKeyUpdate", "APIKeyCreateForm"
 
-from .schemas import APIKeyCreate, APIKeyReturn, APIKeyUpdate
+from .schemas import APIKeyCreate, APIKeyReturn, APIKeyUpdate, APIKeyCreateForm

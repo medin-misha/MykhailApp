@@ -5,8 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from services import CRUD
 from core.models import APIKey
-from contracts.api_keys import APIKeyReturn, APIKeyUpdate, APIKeyCreate
+from contracts.api_keys import APIKeyReturn, APIKeyUpdate, APIKeyCreateForm
 from core.database import database
+from services.API_keys.crud import create_key, check_valid_api_key
 
 router = APIRouter(
     prefix="/api-keys",
@@ -19,15 +20,15 @@ SessionDep = Annotated[AsyncSession, Depends(database.get_session)]
 
 @router.post(
     "/",
-    response_model=APIKeyReturn,
+    response_model=str,
     status_code=status.HTTP_201_CREATED,
     summary="Создать API-ключ (dev)",
     response_model_exclude_none=True,
 )
 async def create_api_key_view(
-    data: APIKeyCreate,
+    data: APIKeyCreateForm,
     session: SessionDep,
-) -> APIKeyReturn:
+) -> str:
     """
     ⚙️ **Dev-only endpoint**
 
@@ -35,7 +36,7 @@ async def create_api_key_view(
     Используется при добавлении новых сервисов или модулей,
     которые будут обращаться к Auth через защищённый доступ.
     """
-    return await CRUD.create(data=data, model=APIKey, session=session)
+    return await create_key(data, session)
 
 
 @router.get(
@@ -111,3 +112,19 @@ async def delete_api_key_view(
     Применяется при тестировании или отзыве неиспользуемых ключей.
     """
     return await CRUD.delete(id=id, session=session, model=APIKey)
+
+
+@router.get(
+    "check/{key:str}",
+    response_model=bool,
+    status_code=status.HTTP_200_OK,
+    summary="Удалить API-ключ (dev)",
+)
+async def check_api_key(key: str, session: SessionDep) -> bool:
+    """
+    ⚙️ **Dev-only endpoint**
+
+    Проверяет API-ключ.
+    Применяется при тестировании.
+    """
+    return await check_valid_api_key(key=key, session=session)
