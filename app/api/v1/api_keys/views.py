@@ -115,16 +115,16 @@ async def delete_api_key_view(
 
 
 @router.get(
-    "check/{key:str}",
+    "check/{key:str}/{service_id:int}",
     response_model=bool,
     status_code=status.HTTP_200_OK,
-    summary="Удалить API-ключ (dev)",
+    summary="Провалидировать API-ключ к сервису (dev)",
 )
-async def check_api_key(key: str, session: SessionDep) -> bool:
+async def check_api_key(key: str, service_id: int, session: SessionDep) -> bool:
     """
     ⚙️ **Dev-only endpoint**
 
     Проверяет API-ключ.
     Применяется при тестировании.
     """
-    return await check_valid_api_key(key=key, session=session)
+    return await check_valid_api_key(key=key, service_id=service_id, session=session)

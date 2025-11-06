@@ -29,14 +29,13 @@ async def create_key(form: APIKeyCreateForm, session: AsyncSession) -> str:
     return key
 
 
-async def check_valid_api_key(key: str, session: AsyncSession) -> bool:
+async def check_valid_api_key(key: str, service_id: int,  session: AsyncSession) -> bool:
     """
     Проверяет, существует ли данный API-ключ в базе.
     Ключи хранятся в виде хэшей (argon2), поэтому прямое сравнение невозможно.
     """
-    # TODO добавить where с service_id так быстрее
     # Получаем все ключи (или оптимизируем выборку позже)
-    stmt = select(APIKey)
+    stmt = select(APIKey).where(APIKey.service_id == service_id)
     try:
         result: Result = await session.execute(stmt)
         keys = result.scalars().all()
