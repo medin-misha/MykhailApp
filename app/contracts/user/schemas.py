@@ -21,6 +21,7 @@ class UserBase(BaseModel):
     birthday_date: Optional[date] = Field(
         None, description="Дата рождения пользователя"
     )
+    language: Optional[str] = Field("ru", description="Язык пользователя")
 
 
 # ---------- Модель формы создания ----------
@@ -51,6 +52,7 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = Field(None, max_length=15)
     email: Optional[EmailStr] = None
     birthday_date: Optional[date] = None
+    language: Optional[str] = None
 
 
 # ---------- Модель возврата ----------
