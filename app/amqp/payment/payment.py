@@ -1,10 +1,11 @@
 from faststream.rabbit.broker import RabbitBroker
+from faststream.rabbit import RabbitMessage
 from config import settings
 from services.payment.create_payment import create_payment
-
+from amqp.queues import PAYMENT_RECEIVED
 
 broker = RabbitBroker(url=settings.rabbit_url)
 
-@broker.subscriber("payment.received")
-async def create_subscribe_handler(data: dict):
-    await create_payment(data=data)
+@broker.subscriber(PAYMENT_RECEIVED, no_ack=True)
+async def create_subscribe_handler(message: RabbitMessage):
+    await create_payment(msg=message)
