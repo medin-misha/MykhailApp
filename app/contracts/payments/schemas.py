@@ -23,6 +23,14 @@ class PaymentCreate(PaymentBase):
     """
     pass
 
+# ---------- Модель создания AMQP ----------
+class PaymentCreateAMQP(PaymentBase):
+    """
+    Используется при создании новой записи о платеже (в момент получения уведомления от провайдера).
+    """
+    user_id: Optional[int] = Field(default=None, exclude=True)
+    chat_id: Optional[int] = Field(None, description="chat ID пользователя, совершившего платёж")
+
 
 # ---------- Модель обновления ----------
 class PaymentUpdate(BaseModel):

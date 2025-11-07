@@ -55,6 +55,15 @@ class UserUpdate(BaseModel):
     language: Optional[str] = None
 
 
+# ---------- Модель обновления ----------
+class UserUpdateAMQP(UserUpdate):
+    """
+    Используется для обновления данных пользователя в AMQP API
+    """
+
+    chat_id: int = Field(..., description="Telegram chat_id пользователя")
+
+
 # ---------- Модель возврата ----------
 class UserReturn(UserBase):
     """

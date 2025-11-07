@@ -1,3 +1,3 @@
-__all__ = "PaymentCreate", "PaymentUpdate", "PaymentReturn"
+__all__ = "PaymentCreate", "PaymentUpdate", "PaymentReturn", "PaymentCreateAMQP"
 
-from .schemas import PaymentCreate, PaymentUpdate, PaymentReturn
+from .schemas import PaymentCreate, PaymentUpdate, PaymentReturn, PaymentCreateAMQP
