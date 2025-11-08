@@ -1,12 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, Result
-from fastapi import HTTPException
 import secrets
 from contracts.api_keys import APIKeyCreate, APIKeyCreateForm
 from core.models import APIKey
 from core.security import hash_password, HASHER
 from services.error_handlers import DBErrorHandler
-
+from services.exceptions import APIKeyException
 
 async def create_key(form: APIKeyCreateForm, session: AsyncSession) -> str:
     """
@@ -29,7 +28,7 @@ async def create_key(form: APIKeyCreateForm, session: AsyncSession) -> str:
     return key
 
 
-async def check_valid_api_key(key: str, service_id: int,  session: AsyncSession) -> bool:
+async def check_valid_api_key(key: str, service_id: int,  session: AsyncSession, raise_exception: bool = False) -> bool:
     """
     Проверяет, существует ли данный API-ключ в базе.
     Ключи хранятся в виде хэшей (argon2), поэтому прямое сравнение невозможно.
@@ -49,5 +48,6 @@ async def check_valid_api_key(key: str, service_id: int,  session: AsyncSession)
                 return True
         except Exception:
             continue
-
+    if raise_exception:
+        raise APIKeyException("Invalid APIKey")
     return False

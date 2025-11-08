@@ -1,6 +1,5 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from datetime import datetime, timezone
-
 
 class BaseMeta(BaseModel):
     """

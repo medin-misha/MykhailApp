@@ -2,7 +2,7 @@ import logging
 from fastapi import HTTPException
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
-from typing import Callable, Any, Coroutine
+from services.exceptions import APIKeyException
 
 
 logger = logging.getLogger("amqp")
@@ -29,7 +29,7 @@ class AMQPErrorHandler:
             return
 
         # ✅ HTTP ошибки (например 404, 409, 401)
-        if isinstance(err, HTTPException):
+        if isinstance(err, (HTTPException, APIKeyException)):
             logger.warning(
                 f"AMQP HTTPException: {err.detail} (status_code={err.status_code})"
             )
