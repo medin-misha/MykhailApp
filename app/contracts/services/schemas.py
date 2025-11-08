@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field
-
+from contracts.api_keys import APIKeyReturn
 
 # ---------- Базовая модель ----------
 class ServiceBase(BaseModel):
@@ -47,7 +47,7 @@ class ServiceReturn(ServiceBase):
     """
 
     id: int = Field(..., description="Идентификатор сервиса")
-    api_keys: Optional[List[int]] = Field(
+    api_keys: Optional[List[APIKeyReturn]] = Field(
         default_factory=list, description="ID связанных API-ключей"
     )
     created_at: Optional[datetime] = Field(None, description="Дата создания записи")
